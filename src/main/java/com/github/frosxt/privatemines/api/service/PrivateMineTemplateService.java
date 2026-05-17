@@ -1,7 +1,7 @@
 package com.github.frosxt.privatemines.api.service;
 
-import com.github.frosxt.privatemines.api.model.MineTemplateKey;
-import com.github.frosxt.privatemines.api.view.PrivateMineTemplateView;
+import com.github.frosxt.privatemines.api.model.template.MineTemplateKey;
+import com.github.frosxt.privatemines.api.view.template.PrivateMineTemplateView;
 
 import java.util.Collection;
 import java.util.Optional;

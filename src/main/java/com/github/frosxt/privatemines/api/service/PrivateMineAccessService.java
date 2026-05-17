@@ -1,6 +1,6 @@
 package com.github.frosxt.privatemines.api.service;
 
-import com.github.frosxt.privatemines.api.model.MineAccessType;
+import com.github.frosxt.privatemines.api.model.access.MineAccessType;
 
 import java.util.UUID;
 

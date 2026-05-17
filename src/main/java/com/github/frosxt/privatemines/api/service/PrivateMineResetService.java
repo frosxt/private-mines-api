@@ -1,6 +1,6 @@
 package com.github.frosxt.privatemines.api.service;
 
-import com.github.frosxt.privatemines.api.model.MineResetCause;
+import com.github.frosxt.privatemines.api.model.reset.MineResetCause;
 
 import java.util.UUID;
 

@@ -1,10 +1,10 @@
 package com.github.frosxt.privatemines.api.service;
 
-import com.github.frosxt.privatemines.api.model.MineBlockBreakBatchOutcome;
-import com.github.frosxt.privatemines.api.model.MineBlockBreakOutcome;
-import com.github.frosxt.privatemines.api.model.MineBlockPosition;
-import com.github.frosxt.privatemines.api.model.MineBreakResult;
-import com.github.frosxt.privatemines.api.model.MineBreakSource;
+import com.github.frosxt.privatemines.api.model.block.MineBlockBreakBatchOutcome;
+import com.github.frosxt.privatemines.api.model.block.MineBlockBreakOutcome;
+import com.github.frosxt.privatemines.api.model.block.MineBlockPosition;
+import com.github.frosxt.privatemines.api.model.block.MineBreakResult;
+import com.github.frosxt.privatemines.api.model.block.MineBreakSource;
 
 import java.util.Collection;
 import java.util.UUID;

@@ -54,6 +54,20 @@ Main capabilities:
 - `EXTENSION_REGISTRY`: register break modifiers and reward handlers.
 - `PROGRESSION_PROVIDER`, `REWARD_PROVIDER`, `UPGRADE_PRICING`, `BLOCK_DROP_INTERCEPTOR`, and `ECONOMY_BRIDGE`: optional integration hooks.
 
+## Package Layout
+
+The API is grouped by integration domain:
+
+- `api.capability`: capability keys and optional provider contracts.
+- `api.service`: service entry points resolved from PrisonCore capabilities.
+- `api.extension`: chainable extension hooks and registration handles.
+- `api.progression`: progression provider contracts.
+- `api.model.identity`: mine and owner identifiers.
+- `api.model.block`: virtual block positions, break sources, and break results.
+- `api.model.access`, `api.model.reset`, `api.model.template`, `api.model.upgrade`, `api.model.region`: focused value objects and enums.
+- `api.view.*`: read-only snapshots grouped by mine, access, composition, progression, monetisation, reset, monster, and template domains.
+- `api.event.*`: events grouped into base, lifecycle, block, access, reset, progression, and upgrade domains.
+
 ## Guarded Block Mutation
 
 External modules must not edit virtual mine state or send packet updates directly. Use `PrivateMineBlockMutationService`.

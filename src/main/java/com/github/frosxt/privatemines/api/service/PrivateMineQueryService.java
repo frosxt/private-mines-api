@@ -1,6 +1,6 @@
 package com.github.frosxt.privatemines.api.service;
 
-import com.github.frosxt.privatemines.api.view.PrivateMineView;
+import com.github.frosxt.privatemines.api.view.mine.PrivateMineView;
 
 import java.util.Collection;
 import java.util.Optional;

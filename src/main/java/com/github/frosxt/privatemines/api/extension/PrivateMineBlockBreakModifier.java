@@ -1,7 +1,7 @@
 package com.github.frosxt.privatemines.api.extension;
 
-import com.github.frosxt.privatemines.api.event.PrivateMineBlockBreakPostEvent;
-import com.github.frosxt.privatemines.api.event.PrivateMineBlockBreakPreEvent;
+import com.github.frosxt.privatemines.api.event.block.PrivateMineBlockBreakPostEvent;
+import com.github.frosxt.privatemines.api.event.block.PrivateMineBlockBreakPreEvent;
 
 public interface PrivateMineBlockBreakModifier {
 
