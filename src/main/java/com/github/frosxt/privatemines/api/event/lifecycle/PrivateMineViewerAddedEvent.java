@@ -1,14 +1,12 @@
 package com.github.frosxt.privatemines.api.event.lifecycle;
 
 import com.github.frosxt.privatemines.api.event.base.PrivateMineEvent;
-
 import com.github.frosxt.privatemines.api.model.identity.MineId;
 import com.github.frosxt.privatemines.api.model.identity.MineOwner;
 
 import java.util.UUID;
 
 public final class PrivateMineViewerAddedEvent extends PrivateMineEvent {
-
     private final UUID viewer;
 
     public PrivateMineViewerAddedEvent(final MineId mineId, final MineOwner owner, final UUID viewer) {

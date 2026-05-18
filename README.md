@@ -1,25 +1,12 @@
 # PrivateMines API
 
-`private-mines-api` is the public contract for integrating external PrisonCore modules with PrivateMines. It contains only stable API types: capability keys, services, value objects, events, and extension interfaces.
+Public API for modules that want to work with the PrivateMines PrisonCore module.
 
-External modules should compile against this API artifact and resolve runtime implementations through PrisonCore capabilities. Server installs can use the PrivateMines runtime jar, which bundles these API classes so PrivateMines can publish typed capabilities.
+Use this for things like pickaxe enchants, drills, boosters, rewards, leaderboards, and analytics. Do not depend on the full PrivateMines module jar in your project.
 
-## Runtime Requirement
+## Installation
 
-PrisonCore modules are classloader-isolated. For typed capabilities to work, every module must resolve the same API classes at runtime.
-
-That means:
-
-- PrivateMines bundles `private-mines-api` in its runtime jar.
-- Dependent modules compile against the standalone API artifact.
-- Do not shade `private-mines-api` into extension modules.
-- Do not compile extension modules against implementation classes under `application`, `domain`, `infrastructure`, or `bootstrap`.
-
-If PrisonCore does not expose dependency module classes to dependent module classloaders, then the API jar still needs to be supplied through a platform/shared classpath or moved into a platform-level API artifact. Do not allow each extension module to package its own private copy.
-
-## Gradle Dependency
-
-Use the published API artifact in extension modules:
+Add the API as a compile-only dependency:
 
 ```kotlin
 dependencies {
@@ -27,139 +14,90 @@ dependencies {
 }
 ```
 
-The API itself only compiles against PrisonCore `platform-api`.
+The server still needs the real PrivateMines module installed. The PrivateMines jar bundles this API and provides the actual services at runtime.
 
-## Capability Access
+Do not shade this API into your own module.
 
-Resolve services through PrisonCore's `CapabilityRegistry`:
+## Getting Services
+
+Resolve PrivateMines services through PrisonCore capabilities:
 
 ```java
-final PrivateMineBlockMutationService blocks = context.capabilities()
-        .resolve(PrivateMineCapabilityKeys.BLOCK_MUTATION_SERVICE);
+final PrivateMineQueryService mines = context.capabilities().resolve(PrivateMineCapabilityKeys.QUERY_SERVICE);
 
-final PrivateMineQueryService mines = context.capabilities()
-        .resolve(PrivateMineCapabilityKeys.QUERY_SERVICE);
+final PrivateMineBlockMutationService blocks = context.capabilities().resolve(PrivateMineCapabilityKeys.BLOCK_MUTATION_SERVICE);
 ```
 
-Main capabilities:
+Common services:
 
+- `QUERY_SERVICE`: read mine data.
 - `MINE_SERVICE`: create, load, unload, and delete mines.
-- `QUERY_SERVICE`: read mine views and loaded mine state.
-- `ACCESS_SERVICE`: check and mutate visit, mine, teleport, and management access.
-- `RESET_SERVICE`: reset mines and query reset state.
-- `TEMPLATE_SERVICE`: inspect templates and unlock requirements.
-- `UPGRADE_SERVICE`: query and apply mine upgrades.
-- `VIEW_SERVICE`: attach or remove packet viewers.
-- `BLOCK_MUTATION_SERVICE`: guarded virtual block breaking for drills, enchants, and systems.
-- `EXTENSION_REGISTRY`: register break modifiers and reward handlers.
-- `PROGRESSION_PROVIDER`, `REWARD_PROVIDER`, `UPGRADE_PRICING`, `BLOCK_DROP_INTERCEPTOR`, and `ECONOMY_BRIDGE`: optional integration hooks.
+- `ACCESS_SERVICE`: check mine access and visitor permissions.
+- `RESET_SERVICE`: reset mines and check reset state.
+- `TEMPLATE_SERVICE`: read mine templates.
+- `UPGRADE_SERVICE`: read and apply mine upgrades.
+- `BLOCK_MUTATION_SERVICE`: break packet mine blocks safely.
+- `EXTENSION_REGISTRY`: register break hooks and reward handlers.
 
-## Package Layout
+## Breaking Mine Blocks
 
-The API is grouped by integration domain:
-
-- `api.capability`: capability keys and optional provider contracts.
-- `api.service`: service entry points resolved from PrisonCore capabilities.
-- `api.extension`: chainable extension hooks and registration handles.
-- `api.progression`: progression provider contracts.
-- `api.model.identity`: mine and owner identifiers.
-- `api.model.block`: virtual block positions, break sources, and break results.
-- `api.model.access`, `api.model.reset`, `api.model.template`, `api.model.upgrade`, `api.model.region`: focused value objects and enums.
-- `api.view.*`: read-only snapshots grouped by mine, access, composition, progression, monetisation, reset, monster, and template domains.
-- `api.event.*`: events grouped into base, lifecycle, block, access, reset, progression, and upgrade domains.
-
-## Guarded Block Mutation
-
-External modules must not edit virtual mine state or send packet updates directly. Use `PrivateMineBlockMutationService`.
+If your module breaks mine blocks, use `PrivateMineBlockMutationService`. This keeps packets, XP, taxes, block monsters, resets, and stats working correctly.
 
 ```java
 final MineBlockBreakOutcome outcome = blocks.breakBlock(
-        drillOwnerId,
+        playerId,
         mineOwnerId,
         new MineBlockPosition(localX, localY, localZ),
-        MineBreakSource.DRILL
+        MineBreakSource.ENCHANT
 );
 
 if (outcome.changed()) {
-    // Count drill progress, grant module-specific rewards, or update visuals.
+    // Your module can count progress or add extra rewards here.
 }
 ```
 
-PrivateMines owns:
+Use `breakBlocks` for enchants or drills that break many blocks at once.
 
-- Mine access validation.
-- Virtual block state changes.
-- Packet block updates.
-- Mine XP and level progression.
-- Block monster damage.
-- Visitor tax and vault accrual.
-- Reset threshold checks.
-- Persistence dirty marking.
-- Pre/post break events and extension callbacks.
+## Events And Hooks
 
-Use `breakBlocks` for drills or enchant effects that affect multiple positions. The returned `MineBlockBreakBatchOutcome` contains one result per requested block.
+Listen to API events if you only need to react to mine activity.
 
-## Coordinates
+Useful events:
 
-The API uses value objects first:
+- `PrivateMineBlockBreakPreEvent`
+- `PrivateMineBlockBreakPostEvent`
+- `PrivateMineCreatedEvent`
+- `PrivateMineDeletedEvent`
+- `PrivateMineResetEvent`
+- `PrivateMineLevelUpEvent`
+- `PrivateMineAccessChangedEvent`
 
-- `UUID` for players and mine owners.
-- `MineId` and `MineOwner` for stable identity.
-- `MineBlockPosition` for local mine coordinates.
-- `MineRegionView` for packet, template, and active mine regions.
-- Material values are exposed as Bukkit material names in strings.
+Use `EXTENSION_REGISTRY` when you want a clean hook for break modifiers or extra break rewards.
 
-Local coordinates are relative to the template anchor, matching PrivateMines template metadata.
+## Package Layout
 
-## Events And Extensions
+- `api.capability`: capability keys and optional provider hooks.
+- `api.service`: services your module resolves and calls.
+- `api.model.*`: small value objects and enums.
+- `api.view.*`: read-only mine snapshots.
+- `api.event.*`: events grouped by feature area.
+- `api.extension`: break hooks and reward hooks.
 
-Use events for observation and extension registries for cooperative mutation hooks.
+## Rules
 
-Break extension points:
-
-- `PrivateMineBlockBreakPreEvent`: cancellable; can also cancel packet update while allowing state mutation.
-- `PrivateMineBlockBreakPostEvent`: contains the final `MineBlockBreakOutcome`.
-- `PrivateMineBlockBreakModifier`: register through `EXTENSION_REGISTRY` for before/after break callbacks.
-- `PrivateMineBlockRewardProvider`: register through `EXTENSION_REGISTRY` to grant extra rewards after successful guarded breaks.
-
-General events include mine create/delete/unload, viewer add/remove, enter/leave, reset, access changes, level-up, and upgrade application.
-
-Legacy-style fake break coverage is represented by the cancellable pre-break event plus local coordinates and `cancelUpdate`.
-
-## Views
-
-`PrivateMineView` is the main read model. It exposes:
-
-- Owner, id, and template.
-- Access state.
-- Statistics.
-- Composition.
-- Progression.
-- Monetisation and vault totals.
-- Reset state.
-- Block monster state.
-- Packet, full mine, and active mine regions.
-- Loaded state, viewer count, and percent remaining.
-
-Views are snapshots. Do not assume they remain current after a tick or after another module mutates the mine through a service.
-
-## Compatibility Rules
-
-- Treat API types as the only stable integration surface.
-- Never cast services to PrivateMines implementation classes.
-- Never depend on PacketEvents, runtime session classes, packet snapshots, or domain internals.
-- Prefer `BLOCK_MUTATION_SERVICE` over listening to raw packet or Bukkit block events.
-- Close `PrivateMineExtensionRegistration` handles when your module disables.
+- Use API services instead of PrivateMines implementation classes.
+- Do not edit real Bukkit blocks to change packet mines.
+- Do not send your own packet mine block updates.
+- Do not depend on PacketEvents or PrivateMines internals.
+- Close extension registrations when your module disables.
 
 ## Build
-
-From the PrivateMines root:
 
 ```powershell
 .\gradlew.bat :private-mines-api:build
 ```
 
-The API jar and sources jar are written to:
+The jar is created in:
 
 ```text
 private-mines-api/build/libs/

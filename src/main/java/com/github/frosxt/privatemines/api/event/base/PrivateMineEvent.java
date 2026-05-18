@@ -6,7 +6,6 @@ import com.github.frosxt.privatemines.api.model.identity.MineOwner;
 import java.time.Instant;
 
 public abstract class PrivateMineEvent {
-
     private final MineId mineId;
     private final MineOwner owner;
     private final Instant timestamp;

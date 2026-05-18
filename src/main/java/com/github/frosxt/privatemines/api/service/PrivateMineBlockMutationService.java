@@ -15,6 +15,5 @@ public interface PrivateMineBlockMutationService {
 
     MineBlockBreakOutcome breakBlock(UUID actorId, UUID ownerId, MineBlockPosition position, MineBreakSource source);
 
-    MineBlockBreakBatchOutcome breakBlocks(UUID actorId, UUID ownerId, Collection<MineBlockPosition> positions,
-                                           MineBreakSource source);
+    MineBlockBreakBatchOutcome breakBlocks(UUID actorId, UUID ownerId, Collection<MineBlockPosition> positions, MineBreakSource source);
 }

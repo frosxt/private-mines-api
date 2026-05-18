@@ -7,9 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class PrivateMineEventBus {
-
-    private final ConcurrentHashMap<Class<? extends PrivateMineEvent>, CopyOnWriteArrayList<Consumer<?>>> subscribers =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<? extends PrivateMineEvent>, CopyOnWriteArrayList<Consumer<?>>> subscribers = new ConcurrentHashMap<>();
     private final Logger logger;
 
     public PrivateMineEventBus(final Logger logger) {
@@ -30,8 +28,7 @@ public final class PrivateMineEventBus {
             try {
                 ((Consumer<E>) raw).accept(event);
             } catch (final Exception ex) {
-                logger.log(Level.WARNING, "[PrivateMines] Event listener threw for "
-                        + event.getClass().getSimpleName(), ex);
+                logger.log(Level.WARNING, "[PrivateMines] Event listener threw for " + event.getClass().getSimpleName(), ex);
             }
         }
     }
